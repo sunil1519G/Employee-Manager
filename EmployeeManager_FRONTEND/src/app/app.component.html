@@ -1,0 +1,193 @@
+<p>
+  <mat-toolbar color="primary" id="toolbar">
+    <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <span>Employee Manager App</span>
+    <span class="example-spacer"></span>
+
+    <form style="font-size: 14px;">
+      <input (ngModelChange)="onSearchEmployee(key.value)" #key="ngModel" ngModel name="key" type="search"
+        placeholder="Search Employees...">
+    </form>
+
+    <!-- Button trigger modal -->
+    <button (click)="onOpenModal(temp, 'add')" mat-icon-button class="example-icon"
+      aria-label="Example icon-button with share icon">
+      <mat-icon>add</mat-icon>
+    </button>
+    <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
+      <mat-icon>favorite</mat-icon>
+    </button>
+    <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
+      <mat-icon>share</mat-icon>
+    </button>
+  </mat-toolbar>
+</p>
+
+<mat-grid-list id="main-container" cols="6" style="background-color: #e4e9ea; margin: 10px;">
+
+  <h2 style="background-color: #a9c0c9; text-align: center; margin-bottom: 0px; padding: 5px;">All Employees</h2>
+  <mat-divider></mat-divider>
+
+  <mat-card *ngFor="let employee of employees" class="example-card">
+    <mat-card-header>
+      <mat-card-title-group>
+        <img mat-card-sm-image src="../assets/icons8-person-96.png">
+        <mat-card-title>{{employee?.name}}</mat-card-title>
+        <mat-card-subtitle>{{employee?.jobTitle}}</mat-card-subtitle>
+      </mat-card-title-group>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-list>
+        <mat-list-item>Email: {{employee?.email}}</mat-list-item>
+        <mat-list-item>Phone: {{employee?.phone}}</mat-list-item>
+      </mat-list>
+    </mat-card-content>
+    <mat-divider></mat-divider>
+    <mat-card-actions>
+      <section>
+        <div class="example-button-row">
+          <div class="example-flex-container">
+            <div class="example-button-container">
+              <button mat-fab color="primary" (click)="onOpenModal(employee, 'edit')"
+                aria-label="Example icon button with a edit icon">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </div>
+            <div class="example-button-container" style="position:absolute; right:0;">
+              <button mat-fab color="warn" (click)="onOpenModal(employee, 'delete')"
+                aria-label="Example icon button with a delete icon">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </mat-card-actions>
+  </mat-card>
+  <mat-paginator *ngIf="length !== 0" #paginator
+             class="demo-paginator"
+             (page)="handlePageEvent($event)"
+             [length]="length"
+             [pageSize]="pageSize"
+             [pageIndex]="pageIndex"
+             [pageSizeOptions]="showPageSizeOptions ? pageSizeOptions : []"
+             aria-label="Select page">
+  </mat-paginator>
+  
+
+  <div *ngIf="employees?.length === 0" class="alert alert-primary" role="alert">
+    <div style="text-align: center;">
+      No Employees Found!!
+    </div>
+  </div>
+</mat-grid-list>
+
+
+
+<!-- Add Employee Modal -->
+<div class="modal fade" id="addEmployeeModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+  aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Employee</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form #addForm="ngForm" (ngSubmit)="onAddEmployee(addForm)" class="row g-3">
+        <div class="modal-body">
+          <div class="col-md-12">
+            <label for="inputname4" class="form-label">Name</label>
+            <input type="text" ngModel name="name" class="form-control" id="inputname4">
+          </div>
+          <div class="col-md-12">
+            <label for="inputjobTitle4" class="form-label">Job Title</label>
+            <input type="text" ngModel name="jobTitle" class="form-control" id="inputjobTitle4">
+          </div>
+          <div class="col-md-12">
+            <label for="inputEmail4" class="form-label">Email</label>
+            <input type="email" ngModel name="email" class="form-control" id="inputEmail4">
+          </div>
+          <div class="col-md-12">
+            <label for="inputphone4" class="form-label">Phone</label>
+            <input type="text" ngModel name="phone" class="form-control" id="inputphone4">
+          </div>
+          <div class="col-md-12">
+            <label for="inputImage4" class="form-label">Image URL</label>
+            <input type="text" ngModel name="imageURL" class="form-control" id="inputImage4">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="closeAddEmployee" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button [disabled]="addForm.untouched" type="submit" class="btn btn-success">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- Update Employee Modal -->
+<div class="modal fade" id="editEmployeeModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+  aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Update Employee <b>{{editEmployee?.name}}</b></h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form #editForm="ngForm" (ngSubmit)="onUpdateEmployee(editForm.value)" class="row g-3">
+        <div class="modal-body">
+          <div class="col-md-12">
+            <label for="inputname4" class="form-label">Name</label>
+            <input type="text" ngModel="{{editEmployee?.name}}" name="name" class="form-control" id="inputname4">
+          </div>
+          <input type="hidden" ngModel="{{editEmployee?.id}}" name="id" class="form-control" id="id">
+          <input type="hidden" ngModel="{{editEmployee?.employeeCode}}" name="employeeCode" class="form-control"
+            id="employeeCode">
+          <div class="col-md-12">
+            <label for="inputjobTitle4" class="form-label">Job Title</label>
+            <input type="text" ngModel="{{editEmployee?.jobTitle}}" name="jobTitle" class="form-control"
+              id="inputjobTitle4">
+          </div>
+          <div class="col-md-12">
+            <label for="inputEmail4" class="form-label">Email</label>
+            <input type="email" ngModel="{{editEmployee?.email}}" name="email" class="form-control" id="inputEmail4">
+          </div>
+          <div class="col-md-12">
+            <label for="inputphone4" class="form-label">Phone</label>
+            <input type="text" ngModel="{{editEmployee?.phone}}" name="phone" class="form-control" id="inputphone4">
+          </div>
+          <div class="col-md-12">
+            <label for="inputImage4" class="form-label">Image URL</label>
+            <input type="text" ngModel="{{editEmployee?.imageURL}}" name="imageURL" class="form-control"
+              id="inputImage4">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="closeEditEmployee" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-success" data-bs-dismiss="modal">Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- Delete Employee Modal -->
+<div class="modal fade" id="deleteEmployeeModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+  aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete Employee</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete <b>"{{deleteEmployee?.name}}"</b> employee?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button (click)="onDeleteEmployee(deleteEmployee!.id)" type="button" class="btn btn-danger"
+          data-bs-dismiss="modal">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
